@@ -2,43 +2,51 @@ import os
 import shutil
 from datetime import datetime
 
-# --- CONFIGURAÇÕES ---
-pasta_destino_pdf = "Documentos_PDF"
-pasta_destino_imagens = "Imagens_Organizadas"
+# --- PASTAS DE DESTINO ---
+pasta_pdf = "Documentos_PDF"
+pasta_imagens = "Imagens_Organizadas"
 arquivo_log = "relatorio_de_automacao.txt"
 
-# Criar pastas se não existirem
-if not os.path.exists(pasta_destino_pdf):
-    os.makedirs(pasta_destino_pdf)
-if not os.path.exists(pasta_destino_imagens):
-    os.makedirs(pasta_destino_imagens)
+# Criar as pastas se elas ainda não existirem
+if not os.path.exists(pasta_pdf):
+    os.makedirs(pasta_pdf)
+if not os.path.exists(pasta_imagens):
+    os.makedirs(pasta_imagens)
 
-print("Iniciando a Organização de Arquivos da Jessica")
+print("Iniciando a Organização de Arquivos...")
 
 # --- EXECUÇÃO ---
 with open(arquivo_log, "a", encoding="utf-8") as log:
     agora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    log.write(f"\n=== SESSÃO DE ORGANIZAÇÃO: {agora} ===\n")
+    log.write(f"\n=== SESSÃO: {agora} ===\n")
 
+    # Olhar cada arquivo na pasta onde o script está
     for arquivo in os.listdir("."):
-        # Lógica para PDFs
-        if arquivo.endswith(".pdf"):
-            caminho_final = os.path.join(pasta_destino_pdf, arquivo)
-            if not os.path.exists(caminho_final):
-                shutil.move(arquivo, pasta_destino_pdf)
-                log.write(f"Sucesso: {arquivo} movido para PDFs\n")
-                print(f"Movendo PDF: {arquivo}")
+        
+        # Ignorar o próprio script e o log para não dar erro
+        if arquivo == "organizador.py" or arquivo == arquivo_log:
+            continue
 
-        # Lógica para Imagens
-        elif arquivo.endswith(".jpg") or arquivo.endswith(".png"):
-            caminho_final = os.path.join(pasta_destino_imagens, arquivo)
-            if not os.path.exists(caminho_final):
-                shutil.move(arquivo, pasta_destino_imagens)
+        try:
+            # Lógica para arquivos PDF
+            if arquivo.lower().endswith(".pdf"):
+                shutil.move(arquivo, pasta_pdf)
+                log.write(f"Sucesso: {arquivo} movido para PDFs\n")
+                print(f"Movido: {arquivo}")
+
+            # Lógica para arquivos de Imagem
+            elif arquivo.lower().endswith((".jpg", ".png", ".jpeg")):
+                shutil.move(arquivo, pasta_imagens)
                 log.write(f"Sucesso: {arquivo} movido para Imagens\n")
-                print(f"Movendo Imagem: {arquivo}")
+                print(f"Movido: {arquivo}")
+        
+        except:
+            # Se der erro (ex: arquivo aberto), ele avisa no log e pula pro próximo
+            log.write(f"Erro: Não foi possível mover o arquivo {arquivo}\n")
+            print(f"Aviso: O arquivo {arquivo} está em uso e foi pulado.")
 
     log.write("=== FIM DA TAREFA ===\n")
 
-# --- FINALIZAÇÃO ---
-print("Tudo pronto! Abrindo o relatório...")
+print("Tudo pronto! O relatório foi atualizado.")
+# Abrir o log automaticamente para você ver o resultado
 os.startfile(arquivo_log)
